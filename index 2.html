@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NebulaDrive - 次世代量子クラウドストレージ</title>
+  <style>
+    /* ベーススタイル */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      background-color: #0f172a; /* slate-900 */
+      color: #f1f5f9; /* slate-100 */
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* ユーティリティ */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ヘッダー */
+    .header {
+      border-bottom: 1px solid #1e293b; /* slate-800 */
+      position: sticky;
+      top: 0;
+      background-color: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 50;
+    }
+    .header-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 70px;
+    }
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: #818cf8; /* indigo-400 */
+    }
+    .nav {
+      display: flex;
+      gap: 24px;
+    }
+    @media (max-width: 768px) {
+      .nav { display: none; }
+    }
+    .nav-link {
+      font-size: 0.875rem;
+      color: #cbd5e1; /* slate-300 */
+      transition: color 0.2s;
+    }
+    .nav-link:hover {
+      color: #818cf8;
+    }
+    .btn-sm {
+      background-color: #4f46e5; /* indigo-600 */
+      color: #ffffff;
+      font-size: 0.875rem;
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: 8px;
+      transition: background-color 0.2s;
+    }
+    .btn-sm:hover {
+      background-color: #6366f1; /* indigo-500 */
+    }
+
+    /* ヒーローセクション */
+    .hero {
+      text-align: center;
+      padding: 80px 0;
+    }
+    .badge {
+      display: inline-block;
+      background-color: rgba(79, 70, 229, 0.1);
+      color: #818cf8;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      border: 1px solid rgba(79, 70, 229, 0.2);
+      margin-bottom: 16px;
+    }
+    .hero-title {
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      line-height: 1.2;
+      margin-bottom: 24px;
+    }
+    @media (min-width: 768px) {
+      .hero-title { font-size: 3.5rem; }
+    }
+    .text-gradient {
+      color: #818cf8;
+    }
+    .hero-desc {
+      color: #94a3b8; /* slate-400 */
+      max-width: 640px;
+      margin: 0 auto 32px auto;
+      font-size: 1rem;
+    }
+    @media (min-width: 768px) {
+      .hero-desc { font-size: 1.125rem; }
+    }
+    .hero-actions {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 16px;
+    }
+    @media (min-width: 640px) {
+      .hero-actions { flex-direction: row; }
+    }
+    .btn-lg {
+      font-weight: 600;
+      padding: 14px 32px;
+      border-radius: 12px;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background-color: #4f46e5;
+      color: #ffffff;
+      box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);
+    }
+    .btn-primary:hover {
+      background-color: #6366f1;
+    }
+    .btn-secondary {
+      background-color: #1e293b;
+      color: #e2e8f0;
+    }
+    .btn-secondary:hover {
+      background-color: #334155;
+    }
+
+    /* 特徴セクション */
+    .features {
+      background-color: rgba(30, 41, 59, 0.4);
+      padding: 80px 0;
+      border-top: 1px solid #1e293b;
+      border-bottom: 1px solid #1e293b;
+    }
+    .section-header {
+      text-align: center;
+      margin-bottom: 64px;
+    }
+    .section-title {
+      font-size: 1.875rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .section-subtitle {
+      color: #94a3b8;
+      font-size: 0.875rem;
+    }
+    .grid-3 {
+      display: grid;
+      gap: 32px;
+    }
+    @media (min-width: 768px) {
+      .grid-3 { grid-template-columns: repeat(3, 1fr); }
+    }
+    .card {
+      background-color: #1e293b;
+      padding: 32px;
+      border-radius: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.1);
+    }
+    .card-number {
+      width: 48px;
+      height: 48px;
+      background-color: rgba(79, 70, 229, 0.1);
+      color: #818cf8;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.25rem;
+      margin-bottom: 24px;
+    }
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .card-text {
+      color: #94a3b8;
+      font-size: 0.875rem;
+      line-height: 1.6;
+    }
+
+    /* 料金プラン */
+    .pricing {
+      padding: 80px 0;
+    }
+    .price-card {
+      background-color: rgba(30, 41, 59, 0.5);
+      border: 1px solid #334155;
+      padding: 32px;
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .price-card.featured {
+      background-color: rgba(79, 70, 229, 0.05);
+      border: 2px solid #4f46e5;
+      position: relative;
+    }
+    .ribbon {
+      position: absolute;
+      top: -12px;
+      right: 24px;
+      background-color: #4f46e5;
+      color: #ffffff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 9999px;
+    }
+    .plan-name {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #cbd5e1;
+      margin-bottom: 8px;
+    }
+    .price-card.featured .plan-name {
+      color: #a5b4fc;
+    }
+    .plan-price {
+      font-size: 1.875rem;
+      font-weight: 700;
+      margin-bottom: 24px;
+    }
+    .plan-price span {
+      font-size: 0.875rem;
+      font-weight: 400;
+      color: #94a3b8;
+    }
+    .plan-features {
+      list-style: none;
+      margin-bottom: 32px;
+    }
+    .plan-features li {
+      font-size: 0.875rem;
+      color: #e2e8f0;
+      margin-bottom: 12px;
+    }
+    .btn-plan {
+      display: block;
+      text-align: center;
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      transition: background-color 0.2s;
+    }
+    .btn-plan-normal {
+      background-color: #334155;
+    }
+    .btn-plan-normal:hover {
+      background-color: #475569;
+    }
+    .btn-plan-featured {
+      background-color: #4f46e5;
+    }
+    .btn-plan-featured:hover {
+      background-color: #6366f1;
+    }
+
+    /* フッター */
+    .footer {
+      border-top: 1px solid #1e293b;
+      padding: 32px 0;
+      text-align: center;
+      font-size: 0.75rem;
+      color: #64748b;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ヘッダー -->
+  <header class="header">
+    <div class="container header-inner">
+      <div class="logo">NebulaDrive</div>
+      <nav class="nav">
+        <a href="#features" class="nav-link">特徴</a>
+        <a href="#pricing" class="nav-link">料金プラン</a>
+      </nav>
+      <a href="#signup" class="btn-sm">無料で始める</a>
+    </div>
+  </header>
+
+  <!-- ヒーローセクション -->
+  <section class="container hero">
+    <span class="badge">v3.0 リリース記念キャンペーン中</span>
+    <h1 class="hero-title">
+      すべてのデータを、<br>
+      <span class="text-gradient">光速</span>で持ち歩こう。
+    </h1>
+    <p class="hero-desc">
+      NebulaDriveは、量子暗号化技術をベースにした次世代の超高速クラウドストレージ。無制限に近い同期速度と鉄壁のセキュリティをお届けします。
+    </p>
+    <div class="hero-actions">
+      <a href="#signup" class="btn-lg btn-primary">今すぐ無料登録 (100GB)</a>
+      <a href="#features" class="btn-lg btn-secondary">機能を見る</a>
+    </div>
+  </section>
+
+  <!-- 特徴セクション -->
+  <section id="features" class="features">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">選ばれる3つの理由</h2>
+        <p class="section-subtitle">ストレスのないファイル管理をすべてのデバイスで。</p>
+      </div>
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-number">01</div>
+          <h3 class="card-title">超高速アップロード</h3>
+          <p class="card-text">独自プロトコルにより、大容量の動画やRAWデータも数秒でクラウドへ転送完了します。</p>
+        </div>
+        <div class="card">
+          <div class="card-number">02</div>
+          <h3 class="card-title">ゼロ知識暗号化</h3>
+          <p class="card-text">運営元でさえ中身を覗き見できないエンドツーエンド暗号化でプライバシーを完全保護。</p>
+        </div>
+        <div class="card">
+          <div class="card-number">03</div>
+          <h3 class="card-title">マルチデバイス同期</h3>
+          <p class="card-text">PC、スマートフォン、タブレットからいつでもシームレスにアクセス。オフライン閲覧も対応。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 料金プラン -->
+  <section id="pricing" class="pricing container">
+    <div class="section-header">
+      <h2 class="section-title">シンプルで透明な料金体系</h2>
+      <p class="section-subtitle">いつでもプラン変更・解約が可能です。</p>
+    </div>
+    <div class="grid-3">
+      <!-- プラン1 -->
+      <div class="price-card">
+        <div>
+          <h3 class="plan-name">フリープラン</h3>
+          <div class="plan-price">¥0 <span>/ 月</span></div>
+          <ul class="plan-features">
+            <li>✔ ストレージ容量 100GB</li>
+            <li>✔ 最大3台まで同期</li>
+            <li>✔ 基本暗号化保護</li>
+          </ul>
+        </div>
+        <a href="#" class="btn-plan btn-plan-normal">今すぐ始める</a>
+      </div>
+      <!-- プラン2（おすすめ） -->
+      <div class="price-card featured">
+        <span class="ribbon">人気</span>
+        <div>
+          <h3 class="plan-name">プロプラン</h3>
+          <div class="plan-price">¥980 <span>/ 月</span></div>
+          <ul class="plan-features">
+            <li>✔ ストレージ容量 2TB</li>
+            <li>✔ デバイス数 無制限</li>
+            <li>✔ 優先サポート & 復元機能</li>
+          </ul>
+        </div>
+        <a href="#" class="btn-plan btn-plan-featured">プロを選ぶ</a>
+      </div>
+      <!-- プラン3 -->
+      <div class="price-card">
+        <div>
+          <h3 class="plan-name">チームプラン</h3>
+          <div class="plan-price">¥2,980 <span>/ 月</span></div>
+          <ul class="plan-features">
+            <li>✔ ストレージ容量 10TB (共有)</li>
+            <li>✔ ユーザー管理機能</li>
+            <li>✔ 24時間専任サポート</li>
+          </ul>
+        </div>
+        <a href="#" class="btn-plan btn-plan-normal">チーム向けに問い合わせ</a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    &copy; 2026 NebulaDrive Inc. All rights reserved. (架空のサービスです)
+  </footer>
+
+</body>
+</html>
