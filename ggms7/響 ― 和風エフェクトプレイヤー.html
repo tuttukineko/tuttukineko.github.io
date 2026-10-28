@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>響 ― 音のエフェクトプレイヤー</title>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f2ece0;--paper:#faf6ec;--ink:#1f1b17;--sub:#7a6f62;--red:#c23a22;--line:#d8cdb8;--indigo:#2b3a55;--gold:#a8842c;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14151a;--paper:#1c1d24;--ink:#ece4d2;--sub:#9a917f;--red:#e0553b;--line:#33323a;--indigo:#9fb2d6;--gold:#d3ab52}}
+:root[data-theme="dark"]{--bg:#14151a;--paper:#1c1d24;--ink:#ece4d2;--sub:#9a917f;--red:#e0553b;--line:#33323a;--indigo:#9fb2d6;--gold:#d3ab52}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;color:var(--ink);font-family:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",serif;padding:20px 14px 40px;
+background-color:var(--bg);
+background-image:repeating-radial-gradient(circle at 50% 100%,transparent 0 14px,color-mix(in srgb,var(--line) 55%,transparent) 14px 15px);
+background-size:60px 30px}
+.w{max-width:620px;margin:0 auto;display:grid;gap:14px}
+header{display:flex;align-items:center;gap:16px;padding:6px 4px}
+header h1{writing-mode:vertical-rl;font-size:44px;margin:0;font-weight:800;letter-spacing:.1em;line-height:1;color:var(--ink)}
+header .seal{width:30px;height:30px;background:var(--red);color:#fff;display:grid;place-items:center;font-size:15px;border-radius:3px;transform:rotate(-4deg);margin-top:auto}
+header p{margin:0;color:var(--sub);font-size:13px;line-height:1.8}
+.c{background:var(--paper);border:1px solid var(--line);border-radius:3px;padding:16px;position:relative;box-shadow:0 1px 0 var(--line),0 6px 18px -10px rgba(0,0,0,.35)}
+.c:before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:3px;background:var(--red)}
+h2{font-size:15px;margin:0;font-weight:600;letter-spacing:.2em}
+h2 small{color:var(--sub);font-weight:400;letter-spacing:.1em;margin-left:8px;font-size:11px}
+#drop{border:1px dashed var(--sub);padding:20px;text-align:center;cursor:pointer;line-height:1.9;transition:.2s}
+#drop.on,#drop:hover{border-color:var(--red);background:color-mix(in srgb,var(--red) 6%,transparent)}
+#name{font-size:13px;color:var(--indigo);margin:10px 0 2px;min-height:1.4em}
+canvas{width:100%;height:80px;display:block}
+.s{color:var(--sub);font-size:12px}
+.r{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+#play{width:64px;height:64px;border-radius:50%;background:var(--red);color:#fff;border:0;font:inherit;font-size:15px;cursor:pointer;box-shadow:0 0 0 3px var(--paper),0 0 0 4px var(--red);letter-spacing:.1em}
+.t{font:inherit;font-size:13px;background:transparent;color:var(--ink);border:1px solid var(--line);padding:7px 14px;cursor:pointer;border-radius:2px;letter-spacing:.1em}
+.t:hover{border-color:var(--red)}
+.t.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:22px;background:transparent;margin:0}
+input[type=range]::-webkit-slider-runnable-track{height:2px;background:var(--ink);opacity:.8}
+input[type=range]::-moz-range-track{height:2px;background:var(--ink)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--red);margin-top:-7px;border:2px solid var(--paper)}
+input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:var(--red);border:2px solid var(--paper)}
+.row{display:grid;grid-template-columns:92px 1fr 58px;gap:8px;align-items:center;font-size:13px;margin:6px 0}
+.row output{text-align:right;color:var(--sub);font-variant-numeric:tabular-nums;font-size:12px}
+.h{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.sw{position:relative;width:46px;height:24px}
+.sw input{opacity:0;width:100%;height:100%;position:absolute;margin:0;cursor:pointer;z-index:1}
+.sw i{position:absolute;inset:0;border:1px solid var(--sub);border-radius:12px;transition:.2s}
+.sw i:after{content:"";position:absolute;left:3px;top:3px;width:16px;height:16px;border-radius:50%;background:var(--sub);transition:.2s}
+.sw input:checked+i{border-color:var(--red)}
+.sw input:checked+i:after{transform:translateX(22px);background:var(--red)}
+footer{text-align:center;color:var(--sub);font-size:11px;letter-spacing:.2em}
+</style>
+</head>
+<body>
+<div class="w">
+  <header>
+    <h1>響</h1>
+    <div><p>音に、奥行きを。<br>重低音・木霊・残響を、<br>ひとつの盤で。</p></div>
+    <div class="seal">音</div>
+  </header>
+
+  <div class="c">
+    <div id="drop">音楽ファイルを選ぶ<br><span class="s">タップ、またはここへ落とす</span></div>
+    <input id="file" type="file" accept="audio/*" hidden>
+    <div id="name">未選択</div>
+    <canvas id="cv" width="600" height="80"></canvas>
+    <input id="seek" type="range" min="0" max="1000" value="0">
+    <div class="r" style="justify-content:space-between"><span id="t1" class="s">0:00</span><span id="t2" class="s">0:00</span></div>
+    <div class="r" style="margin-top:8px">
+      <button id="play">再生</button>
+      <button class="t" id="loop">繰り返し</button>
+      <span class="s" style="margin-left:auto">音量</span>
+      <input id="vol" type="range" min="0" max="100" value="80" style="width:100px">
+    </div>
+  </div>
+
+  <div class="c">
+    <h2>調べ<small>プリセット</small></h2>
+    <div class="r" id="pre" style="margin-top:12px"></div>
+  </div>
+
+  <div class="c">
+    <div class="h"><h2>重低音<small>太鼓のように</small></h2><label class="sw"><input type="checkbox" id="bassOn" checked><i></i></label></div>
+    <div class="row"><span>低音の厚み</span><input id="bass" type="range" min="0" max="18" step="0.5" value="8"><output></output></div>
+    <div class="row"><span>地響き</span><input id="sub" type="range" min="0" max="12" step="0.5" value="4"><output></output></div>
+    <div class="row"><span>高音の艶</span><input id="treble" type="range" min="-10" max="10" step="0.5" value="0"><output></output></div>
+  </div>
+
+  <div class="c">
+    <div class="h"><h2>木霊<small>エコー</small></h2><label class="sw"><input type="checkbox" id="echoOn"><i></i></label></div>
+    <div class="row"><span>間</span><input id="etime" type="range" min="0.05" max="1" step="0.01" value="0.35"><output></output></div>
+    <div class="row"><span>返りの数</span><input id="efb" type="range" min="0" max="85" value="40"><output></output></div>
+    <div class="row"><span>濃さ</span><input id="emix" type="range" min="0" max="100" value="40"><output></output></div>
+  </div>
+
+  <div class="c">
+    <div class="h"><h2>余韻<small>リバーブ</small></h2><label class="sw"><input type="checkbox" id="revOn"><i></i></label></div>
+    <div class="row"><span>響きの長さ</span><input id="rlen" type="range" min="0.5" max="5" step="0.1" value="2"><output></output></div>
+    <div class="row"><span>濃さ</span><input id="rmix" type="range" min="0" max="100" value="30"><output></output></div>
+  </div>
+  <footer>音は端末の中だけで奏でられます</footer>
+</div>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const au=new Audio();au.preload="auto";
+let ctx,nodes={},started=false;
+const fmt=s=>isFinite(s)?Math.floor(s/60)+":"+String(Math.floor(s%60)).padStart(2,"0"):"0:00";
+
+function makeIR(len){
+  const sr=ctx.sampleRate,n=Math.floor(sr*len),b=ctx.createBuffer(2,n,sr);
+  for(let c=0;c<2;c++){const d=b.getChannelData(c);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/n,2.5)}
+  return b;
+}
+function init(){
+  if(started)return;started=true;
+  ctx=new (window.AudioContext||window.webkitAudioContext)();
+  const n=nodes;
+  n.src=ctx.createMediaElementSource(au);
+  n.bass=ctx.createBiquadFilter();n.bass.type="lowshelf";n.bass.frequency.value=120;
+  n.sub=ctx.createBiquadFilter();n.sub.type="peaking";n.sub.frequency.value=55;n.sub.Q.value=1.1;
+  n.tre=ctx.createBiquadFilter();n.tre.type="highshelf";n.tre.frequency.value=6000;
+  n.dry=ctx.createGain();n.delay=ctx.createDelay(1.5);n.fb=ctx.createGain();n.eWet=ctx.createGain();
+  n.conv=ctx.createConvolver();n.rWet=ctx.createGain();n.sum=ctx.createGain();
+  n.comp=ctx.createDynamicsCompressor();n.comp.threshold.value=-14;n.comp.ratio.value=6;n.comp.knee.value=12;
+  n.master=ctx.createGain();n.an=ctx.createAnalyser();n.an.fftSize=128;
+  n.src.connect(n.bass).connect(n.sub).connect(n.tre);
+  n.tre.connect(n.dry).connect(n.sum);
+  n.tre.connect(n.delay);n.delay.connect(n.fb).connect(n.delay);n.delay.connect(n.eWet).connect(n.sum);
+  n.tre.connect(n.conv);n.conv.connect(n.rWet).connect(n.sum);
+  n.sum.connect(n.comp).connect(n.master).connect(n.an).connect(ctx.destination);
+  n.conv.buffer=makeIR(+$("rlen").value);
+  apply();draw();
+}
+function apply(){
+  if(!started)return;const n=nodes,t=ctx.currentTime,v=id=>+$(id).value,on=id=>$(id).checked;
+  n.bass.gain.setTargetAtTime(on("bassOn")?v("bass"):0,t,.02);
+  n.sub.gain.setTargetAtTime(on("bassOn")?v("sub"):0,t,.02);
+  n.tre.gain.setTargetAtTime(v("treble"),t,.02);
+  n.delay.delayTime.setTargetAtTime(v("etime"),t,.05);
+  n.fb.gain.setTargetAtTime(v("efb")/100,t,.02);
+  n.eWet.gain.setTargetAtTime(on("echoOn")?v("emix")/100:0,t,.02);
+  n.rWet.gain.setTargetAtTime(on("revOn")?v("rmix")/100:0,t,.02);
+  n.master.gain.setTargetAtTime(v("vol")/100,t,.02);
+}
+const fmts={bass:v=>"+"+v+" dB",sub:v=>"+"+v+" dB",treble:v=>(v>0?"+":"")+v+" dB",etime:v=>(+v).toFixed(2)+" 秒",efb:v=>v+"%",emix:v=>v+"%",rlen:v=>v+" 秒",rmix:v=>v+"%"};
+function label(id){const e=$(id);e.parentNode.querySelector("output").textContent=fmts[id](e.value)}
+Object.keys(fmts).forEach(id=>{label(id);$(id).addEventListener("input",()=>{label(id);apply()})});
+["bassOn","echoOn","revOn"].forEach(id=>$(id).addEventListener("change",apply));
+$("vol").addEventListener("input",()=>{apply();if(!started)au.volume=$("vol").value/100});
+let irT;$("rlen").addEventListener("input",()=>{clearTimeout(irT);irT=setTimeout(()=>{if(started)nodes.conv.buffer=makeIR(+$("rlen").value)},200)});
+
+const presets={
+  "素":{bassOn:0,echoOn:0,revOn:0,bass:0,sub:0,treble:0},
+  "太鼓":{bassOn:1,echoOn:0,revOn:0,bass:12,sub:8,treble:1},
+  "地響き":{bassOn:1,echoOn:0,revOn:0,bass:18,sub:12,treble:-2},
+  "木霊":{bassOn:1,echoOn:1,revOn:0,bass:6,sub:3,treble:0,etime:.35,efb:45,emix:50},
+  "大広間":{bassOn:1,echoOn:0,revOn:1,bass:5,sub:2,treble:2,rlen:3,rmix:45},
+  "夢幻":{bassOn:0,echoOn:1,revOn:1,bass:2,sub:0,treble:-3,etime:.5,efb:60,emix:45,rlen:4.5,rmix:55}
+};
+Object.keys(presets).forEach(k=>{
+  const b=document.createElement("button");b.className="t";b.textContent=k;
+  b.onclick=()=>{
+    const p=presets[k];
+    for(const id in p){const e=$(id);if(e.type==="checkbox")e.checked=!!p[id];else e.value=p[id];if(fmts[id])label(id)}
+    if(started&&p.rlen)nodes.conv.buffer=makeIR(p.rlen);
+    apply();
+    document.querySelectorAll("#pre .t").forEach(x=>x.classList.toggle("on",x===b));
+  };$("pre").appendChild(b);
+});
+
+function load(f){
+  if(!f)return;
+  if(au.src)URL.revokeObjectURL(au.src);
+  au.src=URL.createObjectURL(f);
+  $("name").textContent="♪ "+f.name;
+  init();ctx.resume();au.play().catch(()=>{});
+}
+$("drop").onclick=()=>$("file").click();
+$("file").onchange=e=>load(e.target.files[0]);
+["dragover","dragenter"].forEach(ev=>$("drop").addEventListener(ev,e=>{e.preventDefault();$("drop").classList.add("on")}));
+["dragleave","drop"].forEach(ev=>$("drop").addEventListener(ev,e=>{e.preventDefault();$("drop").classList.remove("on")}));
+$("drop").addEventListener("drop",e=>load(e.dataTransfer.files[0]));
+
+$("play").onclick=()=>{
+  if(!au.src)return $("file").click();
+  init();ctx.resume();au.paused?au.play():au.pause();
+};
+au.onplay=()=>$("play").textContent="停止";
+au.onpause=()=>$("play").textContent="再生";
+$("loop").onclick=e=>{au.loop=!au.loop;e.currentTarget.classList.toggle("on",au.loop)};
+let drag=false;
+$("seek").addEventListener("input",()=>{drag=true;if(au.duration)au.currentTime=au.duration*$("seek").value/1000});
+$("seek").addEventListener("change",()=>drag=false);
+au.ontimeupdate=()=>{
+  $("t1").textContent=fmt(au.currentTime);$("t2").textContent=fmt(au.duration);
+  if(!drag&&au.duration)$("seek").value=au.currentTime/au.duration*1000;
+};
+
+/* 墨の筆致のようなビジュアライザ(左右対称) */
+function draw(){
+  const cv=$("cv"),g=cv.getContext("2d"),d=new Uint8Array(nodes.an.frequencyBinCount),R=document.documentElement;
+  (function loop(){
+    requestAnimationFrame(loop);
+    nodes.an.getByteFrequencyData(d);
+    g.clearRect(0,0,cv.width,cv.height);
+    const st=getComputedStyle(R),ink=st.getPropertyValue("--ink").trim(),red=st.getPropertyValue("--red").trim();
+    const n=d.length,w=cv.width/(n*2),mid=cv.height/2;
+    for(let i=0;i<n;i++){
+      const h=Math.max(2,d[i]/255*mid*.95);
+      g.fillStyle=i<6?red:ink;g.globalAlpha=i<6?.9:.65;
+      g.fillRect(cv.width/2+i*w+1,mid-h,w-2,h*2);
+      g.fillRect(cv.width/2-(i+1)*w+1,mid-h,w-2,h*2);
+    }
+    g.globalAlpha=1;
+  })();
+}
+})();
+</script>
+</body>
+</html>
